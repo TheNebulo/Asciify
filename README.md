@@ -38,7 +38,7 @@ brightness: How bright the image should be. Defaults to 2.25. (Optional)
 To asciify a video, use `ascii_video()` like so:
 
 ```python
-ascii_photo(in_path, final_path, scaleFactor = 0.15, oneCharWidth = 7, oneCharHeight = 9, brightness= 2.25, num_workers = None)
+ascii_video(in_path, final_path, scaleFactor = 0.15, oneCharWidth = 7, oneCharHeight = 9, brightness= 2.25, num_workers = None)
 """
 in_path: The path of the video to asciify (Required).
 final_path: The path where the asciified video will be saved (Required).
