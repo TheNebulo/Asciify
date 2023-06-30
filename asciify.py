@@ -6,7 +6,7 @@ from PIL import Image, ImageDraw, ImageFont
 import numpy as np
 import os
 
-def asciify_frame(frame, scaleFactor = 0.15, oneCharWidth = 7, oneCharHeight = 9, brightness = 2.25):
+def asciify_frame(frame, scaleFactor = 0.15, oneCharWidth = 7, oneCharHeight = 9, brightness = 2.25, progress_bar = False):
     chars = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'. "[::-1]
     charArray = list(chars)
     charLength = len(charArray)
@@ -26,35 +26,52 @@ def asciify_frame(frame, scaleFactor = 0.15, oneCharWidth = 7, oneCharHeight = 9
     outputImage = Image.new('RGB', (int(oneCharWidth * width), int(oneCharHeight * height)), color=(0, 0, 0))
     d = ImageDraw.Draw(outputImage)
 
-    for i in range(height):
-        for j in range(width):
-            r, g, b = pix[j, i]
-            h = int(0.299 * r + 0.587 * g + 0.114 * b)
-            h = min(255, int(h * brightness))
+    if not progress_bar:
+        for i in range(height):
+            for j in range(width):
+                r, g, b = pix[j, i]
+                h = int(0.299 * r + 0.587 * g + 0.114 * b)
+                h = min(255, int(h * brightness))
 
-            pix[j, i] = (h, h, h)
-            d.text((j * oneCharWidth, i * oneCharHeight), getChar(h), font=fnt, fill=(r, g, b))
+                pix[j, i] = (h, h, h)
+                d.text((j * oneCharWidth, i * oneCharHeight), getChar(h), font=fnt, fill=(r, g, b))
+    else:
+        for i in tqdm(range(height)):
+            for j in tqdm(range(width), leave=False):
+                r, g, b = pix[j, i]
+                h = int(0.299 * r + 0.587 * g + 0.114 * b)
+                h = min(255, int(h * brightness))
+
+                pix[j, i] = (h, h, h)
+                d.text((j * oneCharWidth, i * oneCharHeight), getChar(h), font=fnt, fill=(r, g, b))
 
     outputImage = outputImage.convert('RGB')
     output_frame = np.array(outputImage)
     return output_frame
 
 def convert_frame(args):
-    frame, scaleFactor, oneCharWidth, oneCharHeight, brightness = args
-    return asciify_frame(frame, brightness)
+    frame, scaleFactor, oneCharWidth, oneCharHeight, brightness, progress_bar = args
+    return asciify_frame(frame,  scaleFactor, oneCharWidth, oneCharHeight, brightness, progress_bar)
 
 def ascii_photo(in_path, final_path, scaleFactor = 0.15, oneCharWidth = 7, oneCharHeight = 9, brightness= 2.25):
+    
+    if not os.path.exists(in_path):
+        print("Invalid input path.")
+        return
+    
     cap = cv2.imread(in_path)
-    frame_args = (cap, scaleFactor, oneCharWidth, oneCharHeight, brightness)
+    frame_args = (cap, scaleFactor, oneCharWidth, oneCharHeight, brightness, True)
     ascii_frame = Image.fromarray(convert_frame(frame_args),'RGB')
     ascii_frame.save(final_path)
 
 
 def ascii_video(in_path, final_path, scaleFactor = 0.15, oneCharWidth = 7, oneCharHeight = 9, brightness= 2.25, num_workers=None):
+    
+    if not os.path.exists(in_path):
+        print("Invalid input path.")
+        return
 
-    source = in_path
-
-    cap = cv2.VideoCapture(source)
+    cap = cv2.VideoCapture(in_path)
     frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     frame_rate = cap.get(cv2.CAP_PROP_FPS)
 
