@@ -19,7 +19,7 @@ def asciify_frame(frame, scaleFactor = 0.15, oneCharWidth = 7, oneCharHeight = 9
         return charArray[math.floor(inputInt * interval)]
 
     im = Image.fromarray(frame)
-    fnt = ImageFont.truetype('C:\\Windows\\Fonts\\lucon.ttf', 15)
+    fnt = ImageFont.truetype('lucon.ttf', 15)
 
     width, height = im.size
     im = im.resize((int(scaleFactor * width), int(scaleFactor * height * (oneCharWidth / oneCharHeight))), Image.NEAREST)
