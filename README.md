@@ -24,7 +24,10 @@ Any other dependencies should come standard with Python 3.6+.
 To asciify a photo, use `ascii_photo()` like so:
 
 ```python
-def ascii_photo(in_path, final_path, scaleFactor = 0.15, oneCharWidth = 7, oneCharHeight = 9, brightness= 2.15, progress_bar = False):
+def ascii_photo(
+        in_path, final_path, scaleFactor=0.15, oneCharWidth=7, oneCharHeight=9, color_brightness=1, pixel_brightness=2.15, monochrome=False, 
+        overlay_contours=False, contour_depth_minimum_threshold = 0, contour_depth_maximum_threshold = 255, progress_bar=False
+    ):
     """
     Asciifies a photo from a path, and saves it to a file.
 
@@ -42,9 +45,24 @@ def ascii_photo(in_path, final_path, scaleFactor = 0.15, oneCharWidth = 7, oneCh
     - oneCharHeight: Int.
         Height of one character in the ASCII representation.
         Default is 9.
-    - brightness: Float.
-        Specify brightness of the frame.
+    - color_brightness: Float.
+        Specify brightness multiplier of colors in calculations.
+        Default is 1.
+    - pixel_brightness: Float.
+        Specify brightness multiplier of the drawn pixels in the frame.
         Default is 2.15.
+    - monochrome: Bool.
+        If True, a frames are rendered using only grayscale colors.
+        Default is False.
+    - overlay_contours: Bool.
+        If True, overlays contours on the image.
+        Default is False.
+    - contour_depth_minimum_threshold: Float.
+        Specify the minimum threshold of the depth map for when point contours are drawn. Must be between (0-255).
+        Default is 0.
+    - contour_depth_maximum_threshold: Float.
+        Specify the maximum threshold of the depth map for when point contours are drawn. Must be between (0-255).
+        Default is 255.
     - progress_bar: Bool.
         If True, displays a progress bar in the console.
         Default is False.
@@ -56,7 +74,10 @@ def ascii_photo(in_path, final_path, scaleFactor = 0.15, oneCharWidth = 7, oneCh
 To asciify a video, use `ascii_video()` like so:
 
 ```python
-def ascii_video(in_path, final_path, scaleFactor = 0.15, oneCharWidth = 7, oneCharHeight = 9, brightness= 2.15, low_res_audio = True, progress_bar = True, num_workers=None):
+def ascii_video(
+        in_path, final_path, scaleFactor = 0.15, oneCharWidth = 7, oneCharHeight = 9, color_brightness=1, pixel_brightness=2.15, monochrome=False, 
+        overlay_contours = False, contour_depth_minimum_threshold = 0, contour_depth_maximum_threshold = 255, low_res_audio = True, progress_bar = True, num_workers=None
+    ):
     """
     Asciifies a video from a path, and saves it to a file.
 
@@ -74,9 +95,24 @@ def ascii_video(in_path, final_path, scaleFactor = 0.15, oneCharWidth = 7, oneCh
     - oneCharHeight: Int.
         Height of one character in the ASCII representation.
         Default is 9.
-    - brightness: Float.
-        Specify brightness of the frame.
+    - color_brightness: Float.
+        Specify brightness multiplier of colors in calculations.
+        Default is 1.
+    - pixel_brightness: Float.
+        Specify brightness multiplier of the drawn pixels in the frame.
         Default is 2.15.
+    - monochrome: Bool.
+        If True, a frames are rendered using only grayscale colors.
+        Default is False.
+    - overlay_contours: Bool.
+        If True, overlays contours on the video.
+        Default is False.
+    - contour_depth_minimum_threshold: Float.
+        Specify the minimum threshold of the depth map for when point contours are drawn. Must be between (0-255).
+        Default is 0.
+    - contour_depth_maximum_threshold: Float.
+        Specify the maximum threshold of the depth map for when point contours are drawn. Must be between (0-255).
+        Default is 255.
     - low_res_audio: Bool.
         If True, audio quality will be lowered to 8Khz to match the video.
         Default is true.
