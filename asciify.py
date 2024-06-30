@@ -199,7 +199,7 @@ def ascii_video(
         
     Returns: Void
     """
-    
+
     if not os.path.exists(in_path):
         print("Invalid input path.")
         return
@@ -215,7 +215,6 @@ def ascii_video(
     if num_workers is None:
         num_workers = cpu_count()
 
-    pool = Pool(num_workers)
     frame_args = []
 
     for current_frame in tqdm(range(1, frame_count + 1), desc="Processing frames", disable = not progress_bar, leave=False):
@@ -230,45 +229,50 @@ def ascii_video(
 
     cap.release()
 
-    ascii_frames = list(tqdm(pool.imap(convert_frame, frame_args), total=len(frame_args), desc="Converting frames", disable = not progress_bar, leave=False))
-    pool.close()
-    pool.join()
+    with Pool(num_workers) as pool:
+        ascii_frames = list(tqdm(pool.imap(convert_frame, frame_args), total=len(frame_args), desc="Converting frames", disable = not progress_bar, leave=False))
+        pool.close()
+        pool.join()
 
+    temp_video_path = "temp.mp4"
     fourcc = cv2.VideoWriter_fourcc(*"mp4v")
-    output_video = cv2.VideoWriter("temp.mp4", fourcc, frame_rate, (ascii_frames[0].shape[1], ascii_frames[0].shape[0]))
+    output_video = cv2.VideoWriter(temp_video_path, fourcc, frame_rate, (ascii_frames[0].shape[1], ascii_frames[0].shape[0]))
 
     for frame in tqdm(ascii_frames, desc="Saving video", disable = not progress_bar, leave=False):
         output_video.write(frame)
-
-    output_video.release()
     
+    output_video.release()
+
     original_clip = VideoFileClip(in_path)
     original_audio = original_clip.audio
     
-    clip = VideoFileClip("temp.mp4")
+    clip = VideoFileClip(temp_video_path)
     clip = clip.to_RGB()
     fps = clip.fps
-        
+
+    temp_audio_path = "temp_audio.mp3"
+    temp_audio_low_path = "temp_audio_low.mp3"
+
     if low_res_audio:
         low_audio = original_audio.set_fps(8000)
-        low_audio.write_audiofile("temp_audio_low.mp3", verbose=False, logger=None)
+        low_audio.write_audiofile(temp_audio_low_path, verbose=False, logger=None)
         
-        audio = AudioFileClip("temp_audio_low.mp3")
-        audio = audio.set_fps(16000) 
-        audio.write_audiofile("temp_audio.mp3", verbose=False, logger=None)
+        audio = AudioFileClip(temp_audio_low_path)
+        audio = audio.set_fps(16000)
+        audio.write_audiofile(temp_audio_path, verbose=False, logger=None)
     else:
-        original_audio.write_audiofile("temp_audio.mp3", verbose=False, logger=None)
+        original_audio.write_audiofile(temp_audio_path, verbose=False, logger=None)
 
-    with FFMPEG_VideoWriter(final_path, fps=fps, size=clip.size, codec='libx264', logfile=None, threads=num_workers, audiofile="temp_audio.mp3", ffmpeg_params=['-strict', '-2']) as writer:
+    with FFMPEG_VideoWriter(final_path, fps=fps, size=clip.size, codec='libx264', logfile=None, threads=num_workers, audiofile=temp_audio_path, ffmpeg_params=['-strict', '-2']) as writer:
         frame_iterator = tqdm(clip.iter_frames(fps), total=int(clip.duration*fps), desc = "Adding audio", disable = not progress_bar, leave=False)
 
         for frame in frame_iterator:
             writer.write_frame(frame)
 
         writer.close()
-        
-    clip.close()
 
-    os.remove('temp.mp4')
-    if low_res_audio: os.remove('temp_audio_low.mp3')
-    os.remove('temp_audio.mp3')
+    clip.close()
+    original_clip.close()
+    os.remove(temp_video_path)
+    if low_res_audio: os.remove(temp_audio_low_path)
+    os.remove(temp_audio_path)
