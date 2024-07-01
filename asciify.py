@@ -43,7 +43,7 @@ def apply_color_tint(image, tint_color):
 
 def asciify_frame(
         frame, scale_factor=0.15, one_char_width=8, one_char_height=8, color_brightness=1, pixel_brightness=2.15, monochrome=False, filters=None,
-        overlay_contours=False, contour_depth_minimum_threshold = 0, contour_depth_maximum_threshold = 255, progress_bar=False
+        overlay_contours=True, contour_depth_minimum_threshold = 0, contour_depth_maximum_threshold = 255, progress_bar=False
     ):
     
     chars = "■@?0Poc;. "[::-1]
@@ -133,7 +133,7 @@ def convert_frame(args):
 
 def ascii_photo(
         in_path, final_path, scale_factor=0.15, one_char_width=8, one_char_height=8, color_brightness=1, pixel_brightness=2.15, monochrome=False, filters=None,
-        overlay_contours=False, contour_depth_minimum_threshold = 0, contour_depth_maximum_threshold = 255, progress_bar=False
+        overlay_contours=True, contour_depth_minimum_threshold = 0, contour_depth_maximum_threshold = 255, progress_bar=False
     ):
     """
     Asciifies a photo from a path, and saves it to a file.
@@ -166,7 +166,7 @@ def ascii_photo(
         Default is None.
     - overlay_contours: Bool.
         If True, overlays contours on the image.
-        Default is False.
+        Default is True.
     - contour_depth_minimum_threshold: Float.
         Specify the minimum threshold of the depth map for when point contours are drawn. Must be between (0-255).
         Default is 0.
@@ -197,7 +197,7 @@ def ascii_photo(
 
 def ascii_video(
         in_path, final_path, scale_factor = 0.15, one_char_width = 8, one_char_height = 8, color_brightness=1, pixel_brightness=2.15, monochrome=False, filters=None,
-        overlay_contours = False, contour_depth_minimum_threshold = 0, contour_depth_maximum_threshold = 255, low_res_audio = True, progress_bar = True, num_workers=None
+        overlay_contours = True, contour_depth_minimum_threshold = 0, contour_depth_maximum_threshold = 255, low_res_audio = True, progress_bar = True, num_workers=None
     ):
     """
     Asciifies a video from a path, and saves it to a file.
@@ -230,7 +230,7 @@ def ascii_video(
         Default is None.
     - overlay_contours: Bool.
         If True, overlays contours on the video.
-        Default is False.
+        Default is True.
     - contour_depth_minimum_threshold: Float.
         Specify the minimum threshold of the depth map for when point contours are drawn. Must be between (0-255).
         Default is 0.

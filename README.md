@@ -25,8 +25,8 @@ To asciify a photo, use `ascii_photo()` like so:
 
 ```python
 def ascii_photo(
-        in_path, final_path, scaleFactor=0.15, oneCharWidth=7, oneCharHeight=9, color_brightness=1, pixel_brightness=2.15, monochrome=False, 
-        overlay_contours=False, contour_depth_minimum_threshold = 0, contour_depth_maximum_threshold = 255, progress_bar=False
+        in_path, final_path, scale_factor=0.15, one_char_width=8, one_char_height=8, color_brightness=1, pixel_brightness=2.15, monochrome=False, filters=None,
+        overlay_contours=True, contour_depth_minimum_threshold = 0, contour_depth_maximum_threshold = 255, progress_bar=False
     ):
     """
     Asciifies a photo from a path, and saves it to a file.
@@ -39,12 +39,12 @@ def ascii_photo(
     - scaleFactor: Float.
         Controls the image quality in the ASCII image.
         Default is 0.15.
-    - oneCharWidth: Int.
+    - one_char_width: Int.
         Width of one character in the ASCII representation.
-        Default is 7.
-    - oneCharHeight: Int.
+        Default is 8.
+    - one_char_height: Int.
         Height of one character in the ASCII representation.
-        Default is 9.
+        Default is 8.
     - color_brightness: Float.
         Specify brightness multiplier of colors in calculations.
         Default is 1.
@@ -54,9 +54,12 @@ def ascii_photo(
     - monochrome: Bool.
         If True, a frames are rendered using only grayscale colors.
         Default is False.
+    - filters: Dict.
+        A dictionary containing filters to use. crt, sepia, and tint are boolean keys, and tint requires a tint_color key with a color tuple (0-255).
+        Default is None.
     - overlay_contours: Bool.
         If True, overlays contours on the image.
-        Default is False.
+        Default is True.
     - contour_depth_minimum_threshold: Float.
         Specify the minimum threshold of the depth map for when point contours are drawn. Must be between (0-255).
         Default is 0.
@@ -75,8 +78,8 @@ To asciify a video, use `ascii_video()` like so:
 
 ```python
 def ascii_video(
-        in_path, final_path, scaleFactor = 0.15, oneCharWidth = 7, oneCharHeight = 9, color_brightness=1, pixel_brightness=2.15, monochrome=False, 
-        overlay_contours = False, contour_depth_minimum_threshold = 0, contour_depth_maximum_threshold = 255, low_res_audio = True, progress_bar = True, num_workers=None
+        in_path, final_path, scale_factor = 0.15, one_char_width = 8, one_char_height = 8, color_brightness=1, pixel_brightness=2.15, monochrome=False, filters=None,
+        overlay_contours = True, contour_depth_minimum_threshold = 0, contour_depth_maximum_threshold = 255, low_res_audio = True, progress_bar = True, num_workers=None
     ):
     """
     Asciifies a video from a path, and saves it to a file.
@@ -86,15 +89,15 @@ def ascii_video(
         Relative path to the input video.
     - final_path: String.
         Relative path to the output video. Doesn't need to exist.
-    - scaleFactor: Float.
+    - scale_factor: Float.
         Controls the video quality in the ASCII video.
         Default is 0.15.
-    - oneCharWidth: Int.
+    - one_char_width: Int.
         Width of one character in the ASCII representation.
-        Default is 7.
-    - oneCharHeight: Int.
+        Default is 8.
+    - one_char_height: Int.
         Height of one character in the ASCII representation.
-        Default is 9.
+        Default is 8.
     - color_brightness: Float.
         Specify brightness multiplier of colors in calculations.
         Default is 1.
@@ -104,9 +107,12 @@ def ascii_video(
     - monochrome: Bool.
         If True, a frames are rendered using only grayscale colors.
         Default is False.
+    - filters: Dict.
+        A dictionary containing filters to use. crt, sepia, and tint are boolean keys, and tint requires a tint_color key with a color tuple (0-255).
+        Default is None.
     - overlay_contours: Bool.
         If True, overlays contours on the video.
-        Default is False.
+        Default is True.
     - contour_depth_minimum_threshold: Float.
         Specify the minimum threshold of the depth map for when point contours are drawn. Must be between (0-255).
         Default is 0.
