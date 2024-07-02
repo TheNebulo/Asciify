@@ -25,7 +25,7 @@ To asciify a photo, use `ascii_photo()` like so:
 
 ```python
 def ascii_photo(
-        in_path, out_path, scale_factor=0.15, one_char_width=8, one_char_height=8, color_brightness=1, pixel_brightness=2.15, char_set = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'. ",
+        in_path, out_path, scale_factor=0.15, return_to_original_size=False, one_char_width=8, one_char_height=8, color_brightness=1, pixel_brightness=2.15, char_set = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'. ",
         monochrome=False, filters=None, overlay_contours=True, contour_depth_minimum_threshold = 0, contour_depth_maximum_threshold = 255, progress_bar=False
     ):
     """
@@ -39,6 +39,9 @@ def ascii_photo(
     - scale_factor: Float.
         Controls the image quality in the ASCII image.
         Default is 0.15.
+    - return_to_original_size: Bool.
+        If True, the frame is resized back to original size after conversion (loses quality).
+        Default is False.
     - one_char_width: Int.
         Width of one character in the ASCII representation.
         Default is 8.
@@ -55,7 +58,7 @@ def ascii_photo(
         A string containing all the ASCII/Unicode characters to represent pixels (going from lightest to darkest.)
         Default is a predertimened string for an ASCII set.
     - monochrome: Bool.
-        If True, a frames are rendered using only grayscale colors.
+        If True, a frame are rendered using only grayscale colors.
         Default is False.
     - filters: Dict.
         A dictionary containing filters to use. crt, sepia, and tint are boolean keys, and tint requires a tint_color key with a color tuple (0-255).
@@ -81,7 +84,7 @@ To asciify a video, use `ascii_video()` like so:
 
 ```python
 def ascii_video(
-        in_path, out_path, scale_factor = 0.15, one_char_width = 8, one_char_height = 8, color_brightness=1, pixel_brightness=2.15, char_set = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'. ",
+        in_path, out_path, scale_factor = 0.15, return_to_original_size=False, one_char_width = 8, one_char_height = 8, color_brightness=1, pixel_brightness=2.15, char_set = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'. ",
         monochrome=False, filters=None, overlay_contours = True, contour_depth_minimum_threshold = 0, contour_depth_maximum_threshold = 255, low_res_audio = True, progress_bar = True, num_workers=None
     ):
     """
@@ -95,6 +98,9 @@ def ascii_video(
     - scale_factor: Float.
         Controls the video quality in the ASCII video.
         Default is 0.15.
+    - return_to_original_size: Bool.
+        If True, frames is resized back to original size after conversion (loses quality).
+        Default is False.
     - one_char_width: Int.
         Width of one character in the ASCII representation.
         Default is 8.
@@ -111,7 +117,7 @@ def ascii_video(
         A string containing all the ASCII/Unicode characters to represent pixels (going from lightest to darkest.)
         Default is a predertimened string for an ASCII set.
     - monochrome: Bool.
-        If True, a frames are rendered using only grayscale colors.
+        If True, frames are rendered using only grayscale colors.
         Default is False.
     - filters: Dict.
         A dictionary containing filters to use. crt, sepia, and tint are boolean keys, and tint requires a tint_color key with a color tuple (0-255).
@@ -140,13 +146,14 @@ def ascii_video(
     """
 ```
 
-Do note that in the script that is run first (`__name__ == "__main__"`), if `ascii_video()` is used at all (in any script), the following lines should be added.
+Do not that if `ascii_video()` is used at all (in any script), the script that is initially run must contain the following lines.
 
 ```python
 from multiprocessing import freeze_support
 
 if __name__ == "__main__":
   freeze_support()
+  # Continue the code execution here ( i.e. call main() ).
 ```
 
 This is only for Windows machines, and is used to prevent subprocesses freezing from new creations.

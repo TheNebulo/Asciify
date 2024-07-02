@@ -9,7 +9,7 @@ import numpy as np
 import os
 
 def _asciify_frame(
-        frame, scale_factor=0.15, one_char_width=8, one_char_height=8, color_brightness=1, pixel_brightness=2.15, char_set = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'. ",
+        frame, scale_factor=0.15, return_to_original_size=False, one_char_width=8, one_char_height=8, color_brightness=1, pixel_brightness=2.15, char_set = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'. ",
         monochrome=False, filters=None, overlay_contours=True, contour_depth_minimum_threshold = 0, contour_depth_maximum_threshold = 255, progress_bar=False
     ):
     
@@ -62,6 +62,7 @@ def _asciify_frame(
     fnt = ImageFont.truetype('lucon.ttf', 10)
 
     width, height = im.size
+    original_size = (width, height)
     im = im.resize((int(scale_factor * width), int(scale_factor * height * (one_char_width / one_char_height))), Image.NEAREST)
     width, height = im.size
     pix = im.load()
@@ -121,11 +122,14 @@ def _asciify_frame(
         if 'tint' in filters and 'tint_color' in filters:
             outputImage = apply_color_tint(outputImage, filters['tint_color'])
     
+    if return_to_original_size:
+        outputImage = outputImage.resize(original_size, Image.NEAREST)
+    
     output_frame = np.array(outputImage)
     return output_frame
 
 def ascii_photo(
-        in_path, out_path, scale_factor=0.15, one_char_width=8, one_char_height=8, color_brightness=1, pixel_brightness=2.15, char_set = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'. ",
+        in_path, out_path, scale_factor=0.15, return_to_original_size=False, one_char_width=8, one_char_height=8, color_brightness=1, pixel_brightness=2.15, char_set = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'. ",
         monochrome=False, filters=None, overlay_contours=True, contour_depth_minimum_threshold = 0, contour_depth_maximum_threshold = 255, progress_bar=False
     ):
     """
@@ -139,6 +143,9 @@ def ascii_photo(
     - scale_factor: Float.
         Controls the image quality in the ASCII image.
         Default is 0.15.
+    - return_to_original_size: Bool.
+        If True, the frame is resized back to original size after conversion (loses quality).
+        Default is False.
     - one_char_width: Int.
         Width of one character in the ASCII representation.
         Default is 8.
@@ -155,7 +162,7 @@ def ascii_photo(
         A string containing all the ASCII/Unicode characters to represent pixels (going from lightest to darkest.)
         Default is a predertimened string for an ASCII set.
     - monochrome: Bool.
-        If True, a frames are rendered using only grayscale colors.
+        If True, a frame are rendered using only grayscale colors.
         Default is False.
     - filters: Dict.
         A dictionary containing filters to use. crt, sepia, and tint are boolean keys, and tint requires a tint_color key with a color tuple (0-255).
@@ -182,7 +189,7 @@ def ascii_photo(
 
     cap = cv2.imread(in_path)
     frame_args = (
-        cap, scale_factor, one_char_width, one_char_height, color_brightness, pixel_brightness, char_set, monochrome, 
+        cap, scale_factor, return_to_original_size, one_char_width, one_char_height, color_brightness, pixel_brightness, char_set, monochrome, 
         filters, overlay_contours, contour_depth_minimum_threshold, contour_depth_maximum_threshold, progress_bar
     )
     ascii_frame = Image.fromarray(_asciify_frame(*frame_args), 'RGB')
@@ -192,7 +199,7 @@ def ascii_photo(
 
 
 def ascii_video(
-        in_path, out_path, scale_factor = 0.15, one_char_width = 8, one_char_height = 8, color_brightness=1, pixel_brightness=2.15, char_set = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'. ",
+        in_path, out_path, scale_factor = 0.15, return_to_original_size=False, one_char_width = 8, one_char_height = 8, color_brightness=1, pixel_brightness=2.15, char_set = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'. ",
         monochrome=False, filters=None, overlay_contours = True, contour_depth_minimum_threshold = 0, contour_depth_maximum_threshold = 255, low_res_audio = True, progress_bar = True, num_workers=None
     ):
     """
@@ -206,6 +213,9 @@ def ascii_video(
     - scale_factor: Float.
         Controls the video quality in the ASCII video.
         Default is 0.15.
+    - return_to_original_size: Bool.
+        If True, frames is resized back to original size after conversion (loses quality).
+        Default is False.
     - one_char_width: Int.
         Width of one character in the ASCII representation.
         Default is 8.
@@ -222,7 +232,7 @@ def ascii_video(
         A string containing all the ASCII/Unicode characters to represent pixels (going from lightest to darkest.)
         Default is a predertimened string for an ASCII set.
     - monochrome: Bool.
-        If True, a frames are rendered using only grayscale colors.
+        If True, frames are rendered using only grayscale colors.
         Default is False.
     - filters: Dict.
         A dictionary containing filters to use. crt, sepia, and tint are boolean keys, and tint requires a tint_color key with a color tuple (0-255).
@@ -271,7 +281,7 @@ def ascii_video(
         ret, frame = cap.read()
         if ret:
             frame_args.append((
-                frame, scale_factor, one_char_width, one_char_height, color_brightness, pixel_brightness, char_set, monochrome, 
+                frame, scale_factor, return_to_original_size, one_char_width, one_char_height, color_brightness, pixel_brightness, char_set, monochrome, 
                 filters, overlay_contours, contour_depth_minimum_threshold, contour_depth_maximum_threshold, False
             ))
         else:
