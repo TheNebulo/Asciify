@@ -11,8 +11,6 @@ Before Asciify| After Asciify
 
 Asciify uses a couple dependencies. All of these can be installed via Python's package manager PIP from the `requirements.txt` file.
 
-> FFMPEG must be installed on your machine.
-
 ```bash
 pip install -r requirements.txt
 ```
