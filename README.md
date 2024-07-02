@@ -25,8 +25,8 @@ To asciify a photo, use `ascii_photo()` like so:
 
 ```python
 def ascii_photo(
-        in_path, final_path, scale_factor=0.15, one_char_width=8, one_char_height=8, color_brightness=1, pixel_brightness=2.15, monochrome=False, filters=None,
-        overlay_contours=True, contour_depth_minimum_threshold = 0, contour_depth_maximum_threshold = 255, progress_bar=False
+        in_path, out_path, scale_factor=0.15, one_char_width=8, one_char_height=8, color_brightness=1, pixel_brightness=2.15, char_set = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'. ",
+        monochrome=False, filters=None, overlay_contours=True, contour_depth_minimum_threshold = 0, contour_depth_maximum_threshold = 255, progress_bar=False
     ):
     """
     Asciifies a photo from a path, and saves it to a file.
@@ -34,9 +34,9 @@ def ascii_photo(
     Parameters:
     - in_path: String.
         Relative path to the input image.
-    - final_path: String.
+    - out_path: String.
         Relative path to the output image. Doesn't need to exist.
-    - scaleFactor: Float.
+    - scale_factor: Float.
         Controls the image quality in the ASCII image.
         Default is 0.15.
     - one_char_width: Int.
@@ -51,6 +51,9 @@ def ascii_photo(
     - pixel_brightness: Float.
         Specify brightness multiplier of the drawn pixels in the frame.
         Default is 2.15.
+    - char_set: String.
+        A string containing all the ASCII/Unicode characters to represent pixels (going from lightest to darkest.)
+        Default is a predertimened string for an ASCII set.
     - monochrome: Bool.
         If True, a frames are rendered using only grayscale colors.
         Default is False.
@@ -78,8 +81,8 @@ To asciify a video, use `ascii_video()` like so:
 
 ```python
 def ascii_video(
-        in_path, final_path, scale_factor = 0.15, one_char_width = 8, one_char_height = 8, color_brightness=1, pixel_brightness=2.15, monochrome=False, filters=None,
-        overlay_contours = True, contour_depth_minimum_threshold = 0, contour_depth_maximum_threshold = 255, low_res_audio = True, progress_bar = True, num_workers=None
+        in_path, out_path, scale_factor = 0.15, one_char_width = 8, one_char_height = 8, color_brightness=1, pixel_brightness=2.15, char_set = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'. ",
+        monochrome=False, filters=None, overlay_contours = True, contour_depth_minimum_threshold = 0, contour_depth_maximum_threshold = 255, low_res_audio = True, progress_bar = True, num_workers=None
     ):
     """
     Asciifies a video from a path, and saves it to a file.
@@ -87,7 +90,7 @@ def ascii_video(
     Parameters:
     - in_path: String.
         Relative path to the input video.
-    - final_path: String.
+    - out_path: String.
         Relative path to the output video. Doesn't need to exist.
     - scale_factor: Float.
         Controls the video quality in the ASCII video.
@@ -104,6 +107,9 @@ def ascii_video(
     - pixel_brightness: Float.
         Specify brightness multiplier of the drawn pixels in the frame.
         Default is 2.15.
+    - char_set: String.
+        A string containing all the ASCII/Unicode characters to represent pixels (going from lightest to darkest.)
+        Default is a predertimened string for an ASCII set.
     - monochrome: Bool.
         If True, a frames are rendered using only grayscale colors.
         Default is False.

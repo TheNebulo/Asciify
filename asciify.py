@@ -8,51 +8,47 @@ from PIL import Image, ImageDraw, ImageFont, ImageFilter
 import numpy as np
 import os
 
-CRT_SCAN_LINE_COLOR = 50
-
-def apply_crt_effect(image):
-    crt_image = image.copy()
-    width, height = crt_image.size
-    pixels = crt_image.load()
-    
-    for y in range(height):
-        if y % 2 == 0:
-            for x in range(width):
-                r, g, b = pixels[x, y]
-                pixels[x, y] = (r // 2, g // 2, b // 2)
-    
-    crt_image = crt_image.filter(ImageFilter.GaussianBlur(1))
-    return crt_image
-
-def apply_sepia_filter(image):
-    sepia_image = np.array(image)
-    sepia_filter = np.array([[0.272, 0.534, 0.131],
-                             [0.349, 0.686, 0.168],
-                             [0.393, 0.769, 0.189]])
-                             
-    sepia_image = cv2.transform(sepia_image, sepia_filter)
-    sepia_image = np.clip(sepia_image, 0, 255)
-    return Image.fromarray(sepia_image.astype(np.uint8))
-
-def apply_color_tint(image, tint_color):
-    tinted_image = Image.new("RGB", image.size)
-    image = image.convert("RGB") 
-    tint_color_image = Image.new("RGB", tinted_image.size, tint_color)
-    blended = Image.blend(image, tint_color_image, alpha=0.3)
-    return blended
-
-def asciify_frame(
-        frame, scale_factor=0.15, one_char_width=8, one_char_height=8, color_brightness=1, pixel_brightness=2.15, monochrome=False, filters=None,
-        overlay_contours=True, contour_depth_minimum_threshold = 0, contour_depth_maximum_threshold = 255, progress_bar=False
+def _asciify_frame(
+        frame, scale_factor=0.15, one_char_width=8, one_char_height=8, color_brightness=1, pixel_brightness=2.15, char_set = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'. ",
+        monochrome=False, filters=None, overlay_contours=True, contour_depth_minimum_threshold = 0, contour_depth_maximum_threshold = 255, progress_bar=False
     ):
     
-    chars = "■@?0Poc;. "[::-1]
-    # chars = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'. "[::-1]
+    chars = char_set[::-1]
     charArray = list(chars)
     charLength = len(charArray)
     interval = charLength / 256
-
     contour_chars = "|/-\\_ "
+
+    def apply_crt_effect(image):
+        crt_image = image.copy()
+        width, height = crt_image.size
+        pixels = crt_image.load()
+        
+        for y in range(height):
+            if y % 2 == 0:
+                for x in range(width):
+                    r, g, b = pixels[x, y]
+                    pixels[x, y] = (r // 2, g // 2, b // 2)
+        
+        crt_image = crt_image.filter(ImageFilter.GaussianBlur(1))
+        return crt_image
+
+    def apply_sepia_filter(image):
+        sepia_image = np.array(image)
+        sepia_filter = np.array([[0.272, 0.534, 0.131],
+                                [0.349, 0.686, 0.168],
+                                [0.393, 0.769, 0.189]])
+                                
+        sepia_image = cv2.transform(sepia_image, sepia_filter)
+        sepia_image = np.clip(sepia_image, 0, 255)
+        return Image.fromarray(sepia_image.astype(np.uint8))
+
+    def apply_color_tint(image, tint_color):
+        tinted_image = Image.new("RGB", image.size)
+        image = image.convert("RGB") 
+        tint_color_image = Image.new("RGB", tinted_image.size, tint_color)
+        blended = Image.blend(image, tint_color_image, alpha=0.3)
+        return blended
     
     def getChar(inputInt):
         return charArray[math.floor(inputInt * interval)]
@@ -128,12 +124,9 @@ def asciify_frame(
     output_frame = np.array(outputImage)
     return output_frame
 
-def convert_frame(args):
-    return asciify_frame(*args)
-
 def ascii_photo(
-        in_path, final_path, scale_factor=0.15, one_char_width=8, one_char_height=8, color_brightness=1, pixel_brightness=2.15, monochrome=False, filters=None,
-        overlay_contours=True, contour_depth_minimum_threshold = 0, contour_depth_maximum_threshold = 255, progress_bar=False
+        in_path, out_path, scale_factor=0.15, one_char_width=8, one_char_height=8, color_brightness=1, pixel_brightness=2.15, char_set = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'. ",
+        monochrome=False, filters=None, overlay_contours=True, contour_depth_minimum_threshold = 0, contour_depth_maximum_threshold = 255, progress_bar=False
     ):
     """
     Asciifies a photo from a path, and saves it to a file.
@@ -141,9 +134,9 @@ def ascii_photo(
     Parameters:
     - in_path: String.
         Relative path to the input image.
-    - final_path: String.
+    - out_path: String.
         Relative path to the output image. Doesn't need to exist.
-    - scaleFactor: Float.
+    - scale_factor: Float.
         Controls the image quality in the ASCII image.
         Default is 0.15.
     - one_char_width: Int.
@@ -158,6 +151,9 @@ def ascii_photo(
     - pixel_brightness: Float.
         Specify brightness multiplier of the drawn pixels in the frame.
         Default is 2.15.
+    - char_set: String.
+        A string containing all the ASCII/Unicode characters to represent pixels (going from lightest to darkest.)
+        Default is a predertimened string for an ASCII set.
     - monochrome: Bool.
         If True, a frames are rendered using only grayscale colors.
         Default is False.
@@ -186,18 +182,18 @@ def ascii_photo(
 
     cap = cv2.imread(in_path)
     frame_args = (
-        cap, scale_factor, one_char_width, one_char_height, color_brightness, pixel_brightness, monochrome, filters,
-        overlay_contours, contour_depth_minimum_threshold, contour_depth_maximum_threshold, progress_bar
+        cap, scale_factor, one_char_width, one_char_height, color_brightness, pixel_brightness, char_set, monochrome, 
+        filters, overlay_contours, contour_depth_minimum_threshold, contour_depth_maximum_threshold, progress_bar
     )
-    ascii_frame = Image.fromarray(convert_frame(frame_args), 'RGB')
-    ascii_frame.save(final_path)
+    ascii_frame = Image.fromarray(_asciify_frame(*frame_args), 'RGB')
+    ascii_frame.save(out_path)
     if progress_bar: 
-        print(f"Saved asciified photo to {final_path}")
+        print(f"Saved asciified photo to {out_path}")
 
 
 def ascii_video(
-        in_path, final_path, scale_factor = 0.15, one_char_width = 8, one_char_height = 8, color_brightness=1, pixel_brightness=2.15, monochrome=False, filters=None,
-        overlay_contours = True, contour_depth_minimum_threshold = 0, contour_depth_maximum_threshold = 255, low_res_audio = True, progress_bar = True, num_workers=None
+        in_path, out_path, scale_factor = 0.15, one_char_width = 8, one_char_height = 8, color_brightness=1, pixel_brightness=2.15, char_set = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'. ",
+        monochrome=False, filters=None, overlay_contours = True, contour_depth_minimum_threshold = 0, contour_depth_maximum_threshold = 255, low_res_audio = True, progress_bar = True, num_workers=None
     ):
     """
     Asciifies a video from a path, and saves it to a file.
@@ -205,7 +201,7 @@ def ascii_video(
     Parameters:
     - in_path: String.
         Relative path to the input video.
-    - final_path: String.
+    - out_path: String.
         Relative path to the output video. Doesn't need to exist.
     - scale_factor: Float.
         Controls the video quality in the ASCII video.
@@ -222,6 +218,9 @@ def ascii_video(
     - pixel_brightness: Float.
         Specify brightness multiplier of the drawn pixels in the frame.
         Default is 2.15.
+    - char_set: String.
+        A string containing all the ASCII/Unicode characters to represent pixels (going from lightest to darkest.)
+        Default is a predertimened string for an ASCII set.
     - monochrome: Bool.
         If True, a frames are rendered using only grayscale colors.
         Default is False.
@@ -272,8 +271,8 @@ def ascii_video(
         ret, frame = cap.read()
         if ret:
             frame_args.append((
-                frame, scale_factor, one_char_width, one_char_height, color_brightness, pixel_brightness, monochrome, filters,
-                overlay_contours, contour_depth_minimum_threshold, contour_depth_maximum_threshold, False
+                frame, scale_factor, one_char_width, one_char_height, color_brightness, pixel_brightness, char_set, monochrome, 
+                filters, overlay_contours, contour_depth_minimum_threshold, contour_depth_maximum_threshold, False
             ))
         else:
             break
@@ -281,7 +280,7 @@ def ascii_video(
     cap.release()
 
     with Pool(num_workers) as pool:
-        ascii_frames = list(tqdm(pool.imap(convert_frame, frame_args), total=len(frame_args), desc="Converting frames", disable = not progress_bar, leave=False))
+        ascii_frames = list(tqdm(pool.imap(_asciify_frame, *frame_args), total=len(frame_args), desc="Converting frames", disable = not progress_bar, leave=False))
         pool.close()
         pool.join()
 
@@ -317,7 +316,7 @@ def ascii_video(
     else:
         temp_audio_path = None
 
-    with FFMPEG_VideoWriter(final_path, fps=fps, size=clip.size, codec='libx264', logfile=None, threads=num_workers, audiofile=temp_audio_path, ffmpeg_params=['-strict', '-2']) as writer:
+    with FFMPEG_VideoWriter(out_path, fps=fps, size=clip.size, codec='libx264', logfile=None, threads=num_workers, audiofile=temp_audio_path, ffmpeg_params=['-strict', '-2']) as writer:
         frame_iterator = tqdm(clip.iter_frames(fps), total=int(clip.duration*fps), desc = "Adding audio", disable = not progress_bar, leave=False)
 
         for frame in frame_iterator:
